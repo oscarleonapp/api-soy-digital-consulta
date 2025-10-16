@@ -3,80 +3,317 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="sd-config" content="eyJlbmRwb2ludCI6ICJodHRwczovL2FwaWxpbi5pbmRvdGVsLmdvYi5kbzo4MDI1L2FwaS9wYWRyb24vY3JpdGVydGVjIiwgImF1dGhIZWFkZXIiOiAiQmFzaWMgWVhCcGNHRmtjbTl1T2xCQVpISXdiaU15TURJMUlTUW1XSG89IiwgImlkU3VjY2VzcyI6IDEwMCwgImlkTm90Rm91bmQiOiAxNCwgInRpbWVvdXRNcyI6IDE1MDAwfQ==" />
   <title>Tester API Indotel – Validación de Cédula</title>
   <style>
-    :root { --bg:#0f172a; --card:#111827; --muted:#94a3b8; --fg:#e5e7eb; --ok:#10b981; --warn:#f59e0b; --err:#ef4444; --accent:#22d3ee; }
+    :root {
+      --bg:#0b1324;
+      --card:#111f3a;
+      --surface:#172746;
+      --surface-soft:rgba(255,255,255,.05);
+      --muted:#94aed4;
+      --fg:#eef5ff;
+      --accent:#38bdf8;
+      --accent-strong:#0ea5e9;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --err:#f87171;
+    }
     * { box-sizing: border-box; }
-    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial; background: radial-gradient(1200px 600px at 10% 0%, #111827 0%, #0b1220 40%, #070b14 100%); color: var(--fg); }
-    .wrap { max-width: 980px; margin: 32px auto; padding: 0 16px; }
-    h1 { font-size: 1.6rem; letter-spacing: .2px; margin: 0 0 16px; }
-    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .row-3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-    label { font-size:.9rem; color: var(--muted); display:block; margin-bottom: 6px; }
-    input, select { width:100%; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: #0b1220; color: var(--fg); outline: none; }
-    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,211,238,.15); }
-    .btns { display:flex; gap:12px; flex-wrap: wrap; margin-top: 14px; }
-    button { appearance:none; border:1px solid rgba(255,255,255,.14); background: #0b1220; color: var(--fg); padding:10px 14px; border-radius:10px; cursor:pointer; }
-    button.primary { background: linear-gradient(90deg, #06b6d4, #22d3ee); color:#001018; border-color: transparent; }
-    button.warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); color:#1b1200; border-color: transparent; }
-    button:disabled { opacity:.6; cursor:not-allowed; }
-    .form-block { display:flex; flex-direction:column; gap:8px; }
-    .grid { display:grid; gap: 16px; margin-top: 16px; }
-    .section-title { font-weight:600; margin: 10px 0 6px; color:#cbd5e1; }
-    textarea { width:100%; min-height:120px; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:#0b1220; color: var(--fg); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:.9rem; }
-    .kvs { display:grid; grid-template-columns: 220px 1fr; gap:8px; }
-    .kv { display:contents; }
-    .k { color: var(--muted); }
-    .v { font-weight:600; }
-    .pill { display:inline-flex; align-items:center; gap:8px; padding: 6px 10px; border-radius: 999px; font-size: .85rem; border:1px solid rgba(255,255,255,.12); background:#0b1220; }
-    .pill.ok { border-color: rgba(16,185,129,.5); }
-    .pill.warn { border-color: rgba(245,158,11,.5); }
-    .pill.err { border-color: rgba(239,68,68,.5); }
+    body {
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(1400px 600px at 12% 0%, #15274b 0%, #0b1324 55%, #060b16 100%);
+      color: var(--fg);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 46px 20px;
+    }
+    .wrap { width:100%; max-width: 960px; }
+    h1 { font-size: 2rem; letter-spacing: .35px; margin: 0 0 12px; font-weight: 600; }
+    .page-intro { font-size:1rem; color: var(--muted); margin: 0 0 28px; max-width: 640px; line-height:1.6; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 25px 55px rgba(4,12,28,.55);
+      display:flex;
+      flex-direction:column;
+      gap: 32px;
+    }
+    .status-banner { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+    label { font-size:.95rem; color: var(--muted); display:block; font-weight:500; }
+    input {
+      width:100%;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: var(--surface);
+      color: var(--fg);
+      outline: none;
+      font-size: 1.1rem;
+      font-weight:500;
+      letter-spacing:.6px;
+    }
+    input::placeholder { color: rgba(255,255,255,.45); }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56,189,248,.25);
+    }
+    .btns { display:flex; gap:16px; flex-wrap: wrap; margin-top: 18px; }
+    button {
+      appearance:none;
+      border:1px solid transparent;
+      background: var(--surface-soft);
+      color: var(--fg);
+      padding:12px 20px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:1rem;
+      font-weight:600;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+    button.primary {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+      color:#03121e;
+      box-shadow: 0 14px 30px rgba(14,165,233,.35);
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(8,15,35,.4); }
+    button:disabled { opacity:.65; cursor:not-allowed; transform:none; box-shadow:none; }
+    .ghost-button {
+      background: transparent;
+      border:1px solid rgba(255,255,255,.2);
+      color: var(--muted);
+      padding:10px 16px;
+    }
+    .ghost-button:hover {
+      border-color: rgba(56,189,248,.5);
+      color: var(--fg);
+      box-shadow: 0 12px 24px rgba(8,15,35,.35);
+    }
+    .danger-button {
+      background: rgba(248,113,113,.18);
+      color: var(--err);
+      border:1px solid rgba(248,113,113,.45);
+    }
+    .danger-button:hover {
+      box-shadow: 0 12px 24px rgba(248,113,113,.35);
+      transform: translateY(-1px);
+    }
+    .form-block { display:flex; flex-direction:column; gap:12px; }
+    .layout { display:flex; flex-direction:column; gap:30px; }
+    @media (min-width: 900px) {
+      .layout { display:grid; grid-template-columns: 360px 1fr; gap: 40px; align-items:start; }
+    }
+    .panel { background: rgba(10,20,40,.45); border-radius: 22px; padding: 26px; border:1px solid rgba(255,255,255,.08); backdrop-filter: blur(4px); }
+    .input-panel { background: rgba(14,33,62,.6); }
+    .panel h2 { margin:0; font-size:1.2rem; font-weight:600; letter-spacing:.2px; }
+    .panel-desc { margin: 12px 0 20px; font-size:.96rem; color: var(--muted); line-height:1.6; }
+    .help-text { margin: 20px 0 0; font-size:.9rem; color: var(--muted); }
+    .result-panel { display:flex; flex-direction:column; gap:24px; }
+    .result-summary { display:flex; flex-direction:column; gap:12px; }
+    .result-chip {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size:.85rem;
+      font-weight:600;
+      letter-spacing:.3px;
+      align-self:flex-start;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+    }
+    .result-chip.ok-chip { color: var(--ok); border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.2); }
+    .result-chip.warn-chip { color: var(--warn); border-color: rgba(245,158,11,.45); background: rgba(245,158,11,.2); }
+    .result-chip.err-chip { color: var(--err); border-color: rgba(248,113,113,.45); background: rgba(248,113,113,.2); }
+    .result-chip.muted-chip { color: var(--muted); }
+    .result-message { font-size:1.05rem; color: var(--fg); line-height:1.6; margin:0; }
+    .result-grid { display:grid; gap:16px; }
+    @media (min-width: 540px) {
+      .result-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    }
+    .result-item {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 18px 20px;
+      border: 1px solid rgba(255,255,255,.1);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:96px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .result-label { text-transform:uppercase; font-size:.75rem; letter-spacing:1.6px; color: rgba(255,255,255,.6); font-weight:600; }
+    .result-value { font-size:1.15rem; font-weight:600; color: var(--fg); word-break: break-word; }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding: 6px 14px; border-radius: 999px; font-size: .85rem; border:1px solid rgba(255,255,255,.2); background: rgba(10,20,40,.65); }
+    .pill.ok { border-color: rgba(34,197,94,.55); color: var(--ok); }
+    .pill.warn { border-color: rgba(245,158,11,.55); color: var(--warn); }
+    .pill.err { border-color: rgba(248,113,113,.6); color: var(--err); }
     .muted { color: var(--muted); }
-    .result-message { font-size:.95rem; color: var(--muted); margin-bottom: 10px; }
-    .foot { margin-top: 20px; font-size:.85rem; color:var(--muted); }
-    .hr { height:1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent); margin: 14px 0; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-    .tip { font-size: .9rem; color: var(--muted); }
+    .foot { font-size:.88rem; color: var(--muted); text-align:center; border-top:1px solid rgba(255,255,255,.12); padding-top:20px; line-height:1.5; }
+    .foot-alert { color: var(--err); font-weight:600; }
+    [hidden] { display:none !important; }
+    .modal-backdrop {
+      position: fixed;
+      inset:0;
+      background: rgba(5,11,22,.78);
+      backdrop-filter: blur(6px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+      z-index: 1000;
+    }
+    .modal {
+      width:100%;
+      max-width: 540px;
+      background: linear-gradient(180deg, rgba(18,32,58,.92), rgba(14,23,40,.92));
+      border-radius: 22px;
+      border: 1px solid rgba(56,189,248,.18);
+      box-shadow: 0 30px 60px rgba(3,10,26,.6);
+      padding: 28px 30px;
+      display:flex;
+      flex-direction:column;
+      gap: 18px;
+      color: var(--fg);
+    }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+    .modal-header h3 { margin:0; font-size:1.25rem; font-weight:600; }
+    .icon-button {
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.4rem;
+      color: var(--muted);
+      cursor:pointer;
+      padding:0;
+    }
+    .icon-button:hover { color: var(--fg); border-color: rgba(56,189,248,.4); }
+    .modal-desc { margin:0; font-size:.95rem; color: var(--muted); line-height:1.6; }
+    .config-form { display:flex; flex-direction:column; gap:16px; }
+    .form-grid { display:grid; gap:16px; }
+    @media (min-width: 520px) {
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .inline-hint { font-size:.85rem; color: var(--muted); margin:4px 0 0; }
+    .modal-actions { display:flex; flex-wrap:wrap; gap:12px; justify-content:flex-end; }
+    .modal-hint { margin:0; font-size:.85rem; color: var(--muted); line-height:1.5; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Tester API Indotel – Validación de Cédula</h1>
+    <p class="page-intro">Consulta rápidamente números de cédula y confirma si existen en el padrón, sin exponer configuraciones sensibles.</p>
 
-    <div class="card grid">
-      <div class="section-title">Consulta de Cédula</div>
-      <div class="form-block">
-        <label for="cedula">Cédula (11 dígitos RD)</label>
-        <input id="cedula" placeholder="Ej: 00300858230" />
-        <div class="tip">Ingresa solo dígitos; la solicitud valida y limpia automáticamente la entrada.</div>
+    <div class="card">
+      <div class="status-banner">
+        <button id="btnConfig" type="button" class="ghost-button">Opciones avanzadas</button>
+        <div id="status" class="pill muted">Listo</div>
       </div>
-
-      <div class="btns">
-        <button id="btnSend" class="primary">Consultar</button>
-        <button id="btnClear">Limpiar</button>
+      <div class="layout">
+        <section class="panel input-panel">
+          <h2>Consulta de Cédula</h2>
+          <p class="panel-desc">Ingresa el número de 11 dígitos para validar la cédula en el servicio protegido.</p>
+          <div class="form-block">
+            <label for="cedula">Número de cédula</label>
+            <input id="cedula" placeholder="Ej: 00300858230" autocomplete="off" inputmode="numeric" />
+          </div>
+          <div class="btns">
+            <button id="btnSend" class="primary">Consultar</button>
+            <button id="btnClear">Limpiar</button>
+          </div>
+          <p class="help-text">El servicio ya está configurado: solo ingresa la cédula y presiona “Consultar”.</p>
+        </section>
+        <section class="panel result-panel">
+          <h2>Información encontrada</h2>
+          <div class="result-summary">
+            <span id="outStatus" class="result-chip muted-chip">Sin consulta</span>
+            <p class="result-message" id="resultMessage">Aún no se ha realizado ninguna consulta.</p>
+          </div>
+          <div class="result-grid">
+            <div class="result-item">
+              <span class="result-label">Cédula</span>
+              <span class="result-value" id="outCED">—</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Nombre completo</span>
+              <span class="result-value" id="outNOM">—</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Fecha de nacimiento</span>
+              <span class="result-value" id="outFN">—</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Sexo</span>
+              <span class="result-value" id="outSX">—</span>
+            </div>
+          </div>
+        </section>
       </div>
-
-      <div id="status" class="pill muted" style="margin-top:6px;">Listo</div>
-
-      <div class="hr"></div>
-
-      <div class="section-title">Resultado</div>
-      <div class="result-message" id="resultMessage">Aún no se ha realizado ninguna consulta.</div>
-
-      <div class="kvs" id="kvOut">
-        <div class="kv"><div class="k">CEDULA</div><div class="v" id="outCED">—</div></div>
-        <div class="kv"><div class="k">NOMBRE</div><div class="v" id="outNOM">—</div></div>
-        <div class="kv"><div class="k">Fecha de Nacimiento</div><div class="v" id="outFN">—</div></div>
-        <div class="kv"><div class="k">SEXO</div><div class="v" id="outSX">—</div></div>
-        <div class="kv"><div class="k">bot_script_id</div><div class="v" id="outBID">—</div></div>
-        <div class="kv"><div class="k">Interpretación</div><div class="v" id="outINT">—</div></div>
-      </div>
-
       <div class="foot">
-        Nota: Configura las credenciales y el endpoint en el entorno de despliegue; este archivo no expone información sensible.
+        <span class="foot-alert">Nota: La conexión está preconfigurada para este entorno. Evita distribuir la página fuera de los canales controlados.</span>
       </div>
+    </div>
+  </div>
+
+  <div id="configModal" class="modal-backdrop" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Configurar servicio</h3>
+        <button type="button" class="icon-button" id="closeConfig" aria-label="Cerrar configuración">×</button>
+      </div>
+      <p class="modal-desc">Ingresa los datos privados del servicio. Los valores se guardan solo en este navegador (sesión actual).</p>
+      <form id="configForm" class="config-form">
+        <label>
+          Endpoint seguro
+          <input id="cfgEndpoint" name="endpoint" placeholder="https://" required />
+        </label>
+        <div class="form-grid">
+          <label>
+            Usuario (opcional)
+            <input id="cfgUser" name="user" autocomplete="off" />
+          </label>
+          <label>
+            Contraseña (opcional)
+            <input id="cfgPass" name="pass" type="password" autocomplete="off" />
+          </label>
+        </div>
+        <label>
+          Encabezado Authorization (opcional)
+          <input id="cfgAuthHeader" name="authHeader" placeholder="Basic ..." />
+          <span class="inline-hint">Si completas usuario y contraseña, este campo se generará automáticamente.</span>
+        </label>
+        <div class="form-grid">
+          <label>
+            ID éxito
+            <input id="cfgSuccess" name="idSuccess" type="number" min="0" />
+          </label>
+          <label>
+            ID no encontrado
+            <input id="cfgNotFound" name="idNotFound" type="number" min="0" />
+          </label>
+        </div>
+        <label>
+          Timeout (ms)
+          <input id="cfgTimeout" name="timeoutMs" type="number" min="1000" step="500" />
+        </label>
+        <div class="modal-actions">
+          <button type="submit" class="primary">Guardar</button>
+          <button type="button" id="cancelConfig" class="ghost-button">Cancelar</button>
+          <button type="button" id="clearConfig" class="danger-button">Borrar configuración</button>
+        </div>
+      </form>
+      <p class="modal-hint">Se recomienda usar esta herramienta solo en entornos controlados y regenerar credenciales periódicamente.</p>
     </div>
   </div>
 
@@ -87,14 +324,26 @@
       cedula: el('cedula'),
       btnSend: el('btnSend'),
       btnClear: el('btnClear'),
+      btnConfig: el('btnConfig'),
       status: el('status'),
       resultMessage: el('resultMessage'),
       outCED: el('outCED'),
       outNOM: el('outNOM'),
       outFN: el('outFN'),
       outSX: el('outSX'),
-      outBID: el('outBID'),
-      outINT: el('outINT'),
+      outStatus: el('outStatus'),
+      configModal: el('configModal'),
+      closeConfig: el('closeConfig'),
+      cancelConfig: el('cancelConfig'),
+      clearConfig: el('clearConfig'),
+      configForm: document.getElementById('configForm'),
+      cfgEndpoint: el('cfgEndpoint'),
+      cfgUser: el('cfgUser'),
+      cfgPass: el('cfgPass'),
+      cfgAuthHeader: el('cfgAuthHeader'),
+      cfgSuccess: el('cfgSuccess'),
+      cfgNotFound: el('cfgNotFound'),
+      cfgTimeout: el('cfgTimeout'),
     };
 
     function setStatus(text, kind = 'muted') {
@@ -104,6 +353,137 @@
 
     function maskCed(ced) {
       return ced ? ced.replace(/\d(?=\d{4})/g, '•') : '';
+    }
+
+    const chipStyles = {
+      ok: 'result-chip ok-chip',
+      warn: 'result-chip warn-chip',
+      err: 'result-chip err-chip',
+      muted: 'result-chip muted-chip',
+    };
+
+    const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+    function formatDate(value) {
+      if (value == null) return '—';
+      const raw = String(value).trim();
+      if (!raw) return '—';
+
+      const emit = (day, month, year) => {
+        const d = Number(day);
+        const m = Number(month);
+        const y = Number(year);
+        if (!d || !m || !y || m < 1 || m > 12) return raw;
+        return `${d} de ${MONTHS[m - 1]} de ${y}`;
+      };
+
+      let match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (match) {
+        return emit(match[3], match[2], match[1]);
+      }
+
+      match = raw.match(/^(\d{4})(\d{2})(\d{2})$/);
+      if (match) {
+        return emit(match[3], match[2], match[1]);
+      }
+
+      match = raw.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
+      if (match) {
+        return emit(match[1], match[2], match[3]);
+      }
+
+      const date = new Date(raw);
+      if (!Number.isNaN(date.getTime())) {
+        return emit(date.getDate(), date.getMonth() + 1, date.getFullYear());
+      }
+
+      return raw;
+    }
+
+    function setResultChip(kind, text) {
+      state.outStatus.textContent = text;
+      state.outStatus.className = chipStyles[kind] || chipStyles.muted;
+    }
+
+    function getEmbeddedConfig() {
+      const meta = document.querySelector('meta[name="sd-config"]');
+      if (!meta) return {};
+      const raw = (meta.getAttribute('content') || '').trim();
+      if (!raw) return {};
+      try {
+        return JSON.parse(atob(raw));
+      } catch (err) {
+        console.warn('Configuración incrustada inválida.', err);
+        return {};
+      }
+    }
+
+    const STORAGE_KEY = 'sdApiConfig';
+    const embeddedConfig = getEmbeddedConfig();
+    if (Object.keys(embeddedConfig).length) {
+      window.SD_API_CONFIG = Object.assign({}, embeddedConfig, window.SD_API_CONFIG || {});
+    }
+
+    function openConfigModal() {
+      prefillConfigForm();
+      state.configModal.hidden = false;
+      requestAnimationFrame(() => state.cfgEndpoint.focus());
+    }
+
+    function closeConfigModal() {
+      state.configModal.hidden = true;
+      state.configForm.reset();
+    }
+
+    function prefillConfigForm() {
+      const cfg = getConfig();
+      state.cfgEndpoint.value = cfg.endpoint || '';
+      state.cfgAuthHeader.value = cfg.authHeader || '';
+      state.cfgSuccess.value = Number.isFinite(cfg.idSuccess) ? cfg.idSuccess : '';
+      state.cfgNotFound.value = Number.isFinite(cfg.idNotFound) ? cfg.idNotFound : '';
+      state.cfgTimeout.value = Number.isFinite(cfg.timeoutMs) ? cfg.timeoutMs : '';
+      state.cfgUser.value = '';
+      state.cfgPass.value = '';
+    }
+
+    function saveConfigToStorage(cfg) {
+      try {
+        const data = {
+          endpoint: cfg.endpoint,
+          authHeader: cfg.authHeader,
+          idSuccess: cfg.idSuccess,
+          idNotFound: cfg.idNotFound,
+          timeoutMs: cfg.timeoutMs,
+        };
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (err) {
+        console.warn('No se pudo guardar la configuración en sesión.', err);
+      }
+    }
+
+    function loadStoredConfig() {
+      try {
+        const raw = sessionStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          window.setSdApiConfig(parsed);
+          if (activeConfig.endpoint && activeConfig.authHeader) {
+            setResultChip('ok', 'Configuración lista');
+            state.resultMessage.textContent = 'Configuración cargada desde esta sesión. Consulta una cédula.';
+          }
+        }
+      } catch (err) {
+        console.warn('Configuración almacenada inválida.', err);
+      }
+    }
+
+    function clearStoredConfig() {
+      try {
+        sessionStorage.removeItem(STORAGE_KEY);
+      } catch (err) {
+        console.warn('No se pudo limpiar la configuración en sesión.', err);
+      }
     }
 
     function normalizeConfig(raw = {}) {
@@ -125,11 +505,15 @@
       return { endpoint, timeoutMs, idSuccess, idNotFound, authHeader };
     }
 
-    let activeConfig = normalizeConfig(window.SD_API_CONFIG || {});
+    let activeConfig = normalizeConfig(window.SD_API_CONFIG || embeddedConfig || {});
 
     window.setSdApiConfig = function setSdApiConfig(cfg) {
       activeConfig = normalizeConfig(cfg);
-      setStatus('Configuración actualizada', 'ok');
+      if (activeConfig.endpoint && activeConfig.authHeader) {
+        setStatus('Configuración actualizada', 'ok');
+      } else {
+        setStatus('Configuración incompleta', 'warn');
+      }
     };
 
     function getConfig() {
@@ -154,9 +538,10 @@
     }
 
     function resetOutputs() {
-      [state.outCED, state.outNOM, state.outFN, state.outSX, state.outBID, state.outINT].forEach(e => {
+      [state.outCED, state.outNOM, state.outFN, state.outSX].forEach(e => {
         e.textContent = '—';
       });
+      setResultChip('muted', 'Sin consulta');
       state.resultMessage.textContent = 'Aún no se ha realizado ninguna consulta.';
     }
 
@@ -166,21 +551,84 @@
       setStatus('Campos limpiados', 'muted');
     });
 
+    state.btnConfig.addEventListener('click', openConfigModal);
+    state.closeConfig.addEventListener('click', closeConfigModal);
+    state.cancelConfig.addEventListener('click', closeConfigModal);
+
+    state.clearConfig.addEventListener('click', () => {
+      clearStoredConfig();
+      activeConfig = normalizeConfig({});
+      closeConfigModal();
+      resetOutputs();
+      setResultChip('warn', 'Configura el servicio');
+      state.resultMessage.textContent = 'Configura el endpoint y las credenciales antes de realizar consultas.';
+      setStatus('Configuración eliminada', 'warn');
+    });
+
+    state.configForm.addEventListener('submit', evt => {
+      evt.preventDefault();
+      const endpoint = state.cfgEndpoint.value.trim();
+      const user = state.cfgUser.value.trim();
+      const pass = state.cfgPass.value;
+      const authHeaderInput = state.cfgAuthHeader.value.trim();
+      const idSuccess = state.cfgSuccess.value ? Number(state.cfgSuccess.value) : undefined;
+      const idNotFound = state.cfgNotFound.value ? Number(state.cfgNotFound.value) : undefined;
+      const timeoutMs = state.cfgTimeout.value ? Number(state.cfgTimeout.value) : undefined;
+
+      let authHeader = authHeaderInput;
+      if (!authHeader && user && pass) {
+        authHeader = 'Basic ' + btoa(`${user}:${pass}`);
+      }
+
+      const cfg = {
+        endpoint,
+        authHeader,
+        idSuccess,
+        idNotFound,
+        timeoutMs,
+      };
+
+      window.setSdApiConfig(cfg);
+      saveConfigToStorage(getConfig());
+      closeConfigModal();
+      resetOutputs();
+      setResultChip('ok', 'Configuración lista');
+      state.resultMessage.textContent = 'Configuración actualizada. Ya puedes consultar una cédula.';
+    });
+
+    state.configModal.addEventListener('click', evt => {
+      if (evt.target === state.configModal) {
+        closeConfigModal();
+      }
+    });
+
+    document.addEventListener('keydown', evt => {
+      if (evt.key === 'Escape' && !state.configModal.hidden) {
+        evt.preventDefault();
+        closeConfigModal();
+      }
+    });
+
     state.btnSend.addEventListener('click', async () => {
       const cfg = getConfig();
       const v = validateCedula(state.cedula.value);
       if (!v.ok) {
         setStatus(v.msg, 'err');
+        setResultChip('warn', 'Entrada inválida');
+        state.resultMessage.textContent = v.msg;
         return;
       }
 
       if (!cfg.endpoint || !cfg.authHeader) {
         setStatus('Configura endpoint y credenciales antes de consultar.', 'err');
+        setResultChip('err', 'Configuración pendiente');
         state.resultMessage.textContent = 'Define window.setSdApiConfig({ endpoint, authHeader }) antes de usar la herramienta.';
         return;
       }
 
       setStatus('Consultando...', 'warn');
+      setResultChip('warn', 'Consultando…');
+      state.resultMessage.textContent = 'Consultando el servicio, esto tomará solo unos segundos.';
       state.btnSend.disabled = true;
       const t0 = performance.now();
 
@@ -223,41 +671,45 @@
 
         state.outCED.textContent = CED ? `${maskCed(CED)} (${CED.length} dígitos)` : '—';
         state.outNOM.textContent = NOM || '—';
-        state.outFN.textContent = FN || '—';
+        state.outFN.textContent = formatDate(FN);
         state.outSX.textContent = SX || '—';
-        state.outBID.textContent = BID ?? '—';
 
         const idOk = cfg.idSuccess;
         const idNF = cfg.idNotFound;
-        let interp = '—';
-        let kind = 'muted';
+        let resultKind = 'muted';
 
         if (BID === idOk) {
-          interp = 'Registro encontrado';
-          kind = 'ok';
+          resultKind = 'ok';
+          setResultChip('ok', 'Registro encontrado');
           state.resultMessage.textContent = 'La cédula consultada está registrada en el padrón.';
         } else if (BID === idNF) {
-          interp = 'No encontrado';
-          kind = 'warn';
+          resultKind = 'warn';
+          setResultChip('warn', 'No encontrado');
           state.resultMessage.textContent = 'No se encontraron datos para la cédula ingresada.';
         } else if (BID != null) {
-          interp = `Código no previsto: ${BID}`;
-          kind = 'warn';
+          resultKind = 'warn';
+          setResultChip('warn', 'Código no previsto');
           state.resultMessage.textContent = 'Respuesta recibida con código no previsto, revisa la configuración.';
         } else if (!res.ok) {
-          interp = `HTTP ${res.status} ${res.statusText}`;
-          kind = 'err';
+          resultKind = 'err';
+          setResultChip('err', 'Error del servicio');
           state.resultMessage.textContent = 'No se pudo obtener información, revisa la respuesta del servicio.';
+        } else if (!dataObj) {
+          resultKind = 'warn';
+          setResultChip('warn', 'Sin datos');
+          state.resultMessage.textContent = 'El servicio respondió sin datos legibles. Verifica la configuración.';
         } else {
-          state.resultMessage.textContent = 'Consulta realizada, verifica los campos mostrados.';
+          resultKind = 'ok';
+          setResultChip('ok', 'Datos recibidos');
+          state.resultMessage.textContent = 'Consulta realizada, verifica los datos mostrados.';
         }
 
-        state.outINT.textContent = interp;
         const elapsed = performance.now() - t0;
-        setStatus(res.ok ? `Respuesta recibida en ${elapsed.toFixed(0)} ms` : 'Error HTTP recibido', kind);
+        setStatus(res.ok ? `Respuesta recibida en ${elapsed.toFixed(0)} ms` : 'Error HTTP recibido', resultKind);
 
       } catch (err) {
         resetOutputs();
+        setResultChip('err', 'Sin respuesta');
         state.resultMessage.textContent = 'Fallo en la solicitud (timeout, red o CORS).';
         setStatus('Fallo en la solicitud.', 'err');
         console.error(err);
@@ -267,6 +719,12 @@
     });
 
     resetOutputs();
+    if (activeConfig.endpoint && activeConfig.authHeader) {
+      setResultChip('ok', 'Configuración lista');
+      state.resultMessage.textContent = 'Servicio listo para realizar consultas.';
+      setStatus('Servicio configurado', 'ok');
+    }
+    loadStoredConfig();
   </script>
 </body>
 </html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tester API Indotel – Validación de Cédula</title>
+  <style>
+    :root { --bg:#0f172a; --card:#111827; --muted:#94a3b8; --fg:#e5e7eb; --ok:#10b981; --warn:#f59e0b; --err:#ef4444; --accent:#22d3ee; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial; background: radial-gradient(1200px 600px at 10% 0%, #111827 0%, #0b1220 40%, #070b14 100%); color: var(--fg); }
+    .wrap { max-width: 980px; margin: 32px auto; padding: 0 16px; }
+    h1 { font-size: 1.6rem; letter-spacing: .2px; margin: 0 0 16px; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    label { font-size:.9rem; color: var(--muted); display:block; margin-bottom: 6px; }
+    input, select { width:100%; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: #0b1220; color: var(--fg); outline: none; }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34,211,238,.15); }
+    .btns { display:flex; gap:12px; flex-wrap: wrap; margin-top: 14px; }
+    button { appearance:none; border:1px solid rgba(255,255,255,.14); background: #0b1220; color: var(--fg); padding:10px 14px; border-radius:10px; cursor:pointer; }
+    button.primary { background: linear-gradient(90deg, #06b6d4, #22d3ee); color:#001018; border-color: transparent; }
+    button.warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); color:#1b1200; border-color: transparent; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    .grid { display:grid; gap: 16px; margin-top: 16px; }
+    .section-title { font-weight:600; margin: 10px 0 6px; color:#cbd5e1; }
+    textarea { width:100%; min-height:120px; padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:#0b1220; color: var(--fg); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:.9rem; }
+    .kvs { display:grid; grid-template-columns: 220px 1fr; gap:8px; }
+    .kv { display:contents; }
+    .k { color: var(--muted); }
+    .v { font-weight:600; }
+    .pill { display:inline-flex; align-items:center; gap:8px; padding: 6px 10px; border-radius: 999px; font-size: .85rem; border:1px solid rgba(255,255,255,.12); background:#0b1220; }
+    .pill.ok { border-color: rgba(16,185,129,.5); }
+    .pill.warn { border-color: rgba(245,158,11,.5); }
+    .pill.err { border-color: rgba(239,68,68,.5); }
+    .muted { color: var(--muted); }
+    .foot { margin-top: 20px; font-size:.85rem; color:var(--muted); }
+    .hr { height:1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent); margin: 14px 0; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    .tip { font-size: .9rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Tester API Indotel – Validación de Cédula</h1>
+
+    <div class="card grid">
+      <div class="section-title">Configuración</div>
+      <div class="row">
+        <div>
+          <label>Endpoint</label>
+          <input id="endpoint" value="https://apilin.indotel.gob.do:8025/api/padron/critertec" />
+        </div>
+        <div>
+          <label>Método</label>
+          <input value="POST" disabled />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Usuario (Basic Auth)</label>
+          <input id="user" value="apipadron" />
+        </div>
+        <div>
+          <label>Contraseña (Basic Auth)</label>
+          <input id="pass" value="P@dr0n#2025!$&Xz" />
+        </div>
+      </div>
+
+      <div class="row-3">
+        <div>
+          <label>ID éxito (<span class="mono">bot_script_id_success</span>)</label>
+          <input id="idSuccess" type="number" value="100" />
+        </div>
+        <div>
+          <label>ID no encontrado (<span class="mono">bot_script_id_not_found</span>)</label>
+          <input id="idNotFound" type="number" value="14" />
+        </div>
+        <div>
+          <label>Timeout (segundos)</label>
+          <input id="timeout" type="number" value="15" />
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="section-title">Entrada</div>
+      <div class="row">
+        <div>
+          <label>Cédula (11 dígitos RD)</label>
+          <input id="cedula" placeholder="Ej: 00300858230" value="00300858230" />
+          <div class="tip">Se envían solo dígitos (sin guiones/espacios). El input se valida antes de enviar.</div>
+        </div>
+        <div>
+          <label>Payload (visualización previa)</label>
+          <textarea id="payloadPreview" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button id="btnSend" class="primary">Enviar solicitud</button>
+        <button id="btnClear">Limpiar</button>
+        <button id="btnBadSSL" class="warn" title="Tip local">Tip si hay error de certificado</button>
+      </div>
+
+      <div id="status" class="pill muted" style="margin-top:6px;">Listo</div>
+
+      <div class="hr"></div>
+
+      <div class="section-title">Respuesta</div>
+      <div class="row">
+        <div>
+          <label>HTTP</label>
+          <div class="kvs" id="httpInfo">
+            <div class="kv"><div class="k">Status</div><div class="v" id="httpStatus">—</div></div>
+            <div class="kv"><div class="k">Content-Type</div><div class="v" id="httpCT">—</div></div>
+            <div class="kv"><div class="k">Duración</div><div class="v" id="httpTime">—</div></div>
+          </div>
+        </div>
+        <div>
+          <label>Body (JSON)</label>
+          <textarea id="respArea" readonly></textarea>
+        </div>
+      </div>
+
+      <div>
+        <label>Campos clave</label>
+        <div class="kvs" id="kvOut">
+          <div class="kv"><div class="k">CEDULA</div><div class="v" id="outCED">—</div></div>
+          <div class="kv"><div class="k">NOMBRE</div><div class="v" id="outNOM">—</div></div>
+          <div class="kv"><div class="k">Fecha de Nacimiento</div><div class="v" id="outFN">—</div></div>
+          <div class="kv"><div class="k">SEXO</div><div class="v" id="outSX">—</div></div>
+          <div class="kv"><div class="k">bot_script_id</div><div class="v" id="outBID">—</div></div>
+          <div class="kv"><div class="k">Interpretación</div><div class="v" id="outINT">—</div></div>
+        </div>
+      </div>
+
+      <div class="foot">
+        Nota: Si ejecutas este HTML directamente desde archivo local, el navegador podría bloquear por <span class="mono">CORS</span>. Sube esto a un servidor (https) o usa un proxy/preview local. Las credenciales aquí son para pruebas; evita exponer en producción.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const el = id => document.getElementById(id);
+
+    const state = {
+      endpoint: el('endpoint'),
+      user: el('user'),
+      pass: el('pass'),
+      idSuccess: el('idSuccess'),
+      idNotFound: el('idNotFound'),
+      timeout: el('timeout'),
+      cedula: el('cedula'),
+      payloadPreview: el('payloadPreview'),
+      btnSend: el('btnSend'),
+      btnClear: el('btnClear'),
+      btnBadSSL: el('btnBadSSL'),
+      status: el('status'),
+      httpStatus: el('httpStatus'),
+      httpCT: el('httpCT'),
+      httpTime: el('httpTime'),
+      respArea: el('respArea'),
+      outCED: el('outCED'),
+      outNOM: el('outNOM'),
+      outFN: el('outFN'),
+      outSX: el('outSX'),
+      outBID: el('outBID'),
+      outINT: el('outINT'),
+    };
+
+    function setStatus(text, kind = 'muted') {
+      state.status.className = `pill ${kind}`;
+      state.status.textContent = text;
+    }
+
+    function maskCed(ced) {
+      return ced ? ced.replace(/\d(?=\d{4})/g, '•') : '';
+    }
+
+    function updatePayloadPreview() {
+      const payload = {
+        cedula: (state.cedula.value || '').replace(/\D/g, ''),
+        bot_script_id_success: Number(state.idSuccess.value || 100),
+        bot_script_id_not_found: Number(state.idNotFound.value || 14),
+      };
+      state.payloadPreview.value = JSON.stringify(payload, null, 2);
+    }
+
+    ['cedula','idSuccess','idNotFound'].forEach(k => {
+      state[k].addEventListener('input', updatePayloadPreview);
+    });
+    updatePayloadPreview();
+
+    state.btnClear.addEventListener('click', () => {
+      state.cedula.value = '';
+      state.respArea.value = '';
+      state.httpStatus.textContent = '—';
+      state.httpCT.textContent = '—';
+      state.httpTime.textContent = '—';
+      [state.outCED, state.outNOM, state.outFN, state.outSX, state.outBID, state.outINT].forEach(e=> e.textContent='—');
+      updatePayloadPreview();
+      setStatus('Campos limpiados', 'muted');
+    });
+
+    state.btnBadSSL.addEventListener('click', () => {
+      alert('Si encuentras errores de certificado en pruebas locales, prueba desde un servidor HTTPS válido o usa un túnel seguro. Evita desactivar la validación SSL en producción.');
+    });
+
+    function validateCedula(raw) {
+      const digits = (raw || '').replace(/\D/g, '');
+      if (digits.length !== 11) return { ok:false, msg:'La cédula debe tener 11 dígitos.' };
+      return { ok:true, digits };
+    }
+
+    function basicAuthHeader(user, pass) {
+      return 'Basic ' + btoa(`${user}:${pass}`);
+    }
+
+    async function fetchWithTimeout(resource, options = {}) {
+      const { timeout = 15000 } = options;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const response = await fetch(resource, { ...options, signal: controller.signal, mode: 'cors' });
+        return response;
+      } finally {
+        clearTimeout(id);
+      }
+    }
+
+    state.btnSend.addEventListener('click', async () => {
+      const t0 = performance.now();
+      setStatus('Enviando...', 'warn');
+      state.btnSend.disabled = true;
+
+      // Validaciones
+      const v = validateCedula(state.cedula.value);
+      if (!v.ok) {
+        setStatus(v.msg, 'err');
+        state.btnSend.disabled = false;
+        return;
+      }
+
+      const payload = {
+        cedula: v.digits,
+        bot_script_id_success: Number(state.idSuccess.value || 100),
+        bot_script_id_not_found: Number(state.idNotFound.value || 14),
+      };
+
+      updatePayloadPreview();
+
+      try {
+        const res = await fetchWithTimeout(state.endpoint.value, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': basicAuthHeader(state.user.value, state.pass.value),
+          },
+          body: JSON.stringify(payload),
+          timeout: Number(state.timeout.value || 15) * 1000,
+        });
+
+        const ct = res.headers.get('content-type') || '—';
+        state.httpStatus.textContent = `${res.status} ${res.statusText}`;
+        state.httpCT.textContent = ct;
+
+        let dataText = '';
+        let dataObj = null;
+
+        if (ct.includes('application/json')) {
+          const json = await res.json();
+          dataObj = json;
+          dataText = JSON.stringify(json, null, 2);
+        } else {
+          dataText = await res.text();
+          try { dataObj = JSON.parse(dataText); } catch { /* not json */ }
+        }
+
+        state.respArea.value = dataText;
+
+        // Campos clave si hay JSON
+        const CED = dataObj?.CEDULA ?? dataObj?.cedula ?? null;
+        const NOM = dataObj?.NOMBRE ?? null;
+        const FN  = dataObj?.['Fecha de Nacimiento'] ?? dataObj?.fecha_nacimiento ?? null;
+        const SX  = dataObj?.SEXO ?? null;
+        const BID = dataObj?.bot_script_id ?? null;
+
+        state.outCED.textContent = CED ? `${maskCed(CED)} (${CED.length} dígitos)` : '—';
+        state.outNOM.textContent = NOM || '—';
+        state.outFN.textContent  = FN  || '—';
+        state.outSX.textContent  = SX  || '—';
+        state.outBID.textContent = (BID ?? '—');
+
+        // Interpretación
+        const idOk = Number(state.idSuccess.value || 100);
+        const idNF = Number(state.idNotFound.value || 14);
+        let interp = '—';
+        let kind = 'muted';
+        if (BID === idOk) { interp = 'Registro encontrado (éxito)'; kind = 'ok'; }
+        else if (BID === idNF) { interp = 'No encontrado'; kind = 'warn'; }
+        else if (BID != null) { interp = `Código no previsto: ${BID}`; kind = 'warn'; }
+        else if (!res.ok) { interp = `HTTP ${res.status} ${res.statusText}`; kind = 'err'; }
+        state.outINT.textContent = interp;
+
+        const t1 = performance.now();
+        state.httpTime.textContent = `${(t1 - t0).toFixed(0)} ms`;
+        setStatus(res.ok ? 'Respuesta recibida' : 'Error HTTP recibido', kind);
+
+      } catch (err) {
+        state.httpStatus.textContent = '—';
+        state.httpCT.textContent = '—';
+        state.httpTime.textContent = '—';
+        state.respArea.value = String(err);
+        [state.outCED, state.outNOM, state.outFN, state.outSX, state.outBID, state.outINT].forEach(e=> e.textContent='—');
+        setStatus('Fallo en la solicitud (timeout o red/CORS)', 'err');
+      } finally {
+        state.btnSend.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
